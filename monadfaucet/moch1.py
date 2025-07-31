@@ -11,101 +11,34 @@ from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
 from rich import box
-
-# moch1.py
-# Terminal Banner by 4s994 for _-ANGGA-_
-# ANSI-safe size, optimized for 100-120 cols
-
 from colorama import Fore, Style, init
+
+# Inisialisasi warna terminal
 init(autoreset=True)
 
-ascii_banner = r"""                                                                                                                                                                                                                
-                                         ...................                                        
-                        ....................  ............... .........                             
-                   ... .......:-=+*#%%%%%%%%%@@@@@@@@@@@%%%%%%%%#*+-.. ............                 
-                  ..-%@@@@@@%%@@@%##%@@@%*=+#@@#======+++#@@%*##%%%%%@#:.+%%#*+-::....              
-                 ..:#@%+=====+@@@*==*#%@%+==#%++=++++++==%%#+========#@@%@%**#%%@@@#:..             
-          ....  ...#@%*==*##===#@*====%@%+==%#===#@@@@@@@@#===#@@@%%%@@@%*+======#@@=...            
-        ...:---=++*%@===*@@%===#@+=====-%+==%*===#@%++++*@#===%@@%%%%%@@%===#@@#=+*@@...            
-        ..+@%%%####%@-==#@@%===%%+==#%======%*===%@%+===+@#===%@%====*@@#===%@@#===@@-....          
-        ..+@#======%%==========%%+==%@%*====%*===%@@@*==+@*===@@@%+==*@@*===*#%*==+@@@@%-...        
-        ..*@%%%%@@@@%===+***===%%===%@@%*===@%#+====-===+@#+==++**+==#@@+=========+%+==%@...        
-        ..=@@@@@@@@@%===%@@%++*%%***@@@@%###@@@########*#@@%*+++=====#@@===#@%%+==+%%##%@:..        
-        ..........=@@%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%@@@@+==*@@@@@@...        
-           ........%@@@@@@@@@@#=====*@@@@#=========#@@@@@@@@@*=======%@@@@@@@@@@@@@@#=++:...        
-                 ...+%%%%@@@%+======#@@%-===+****====#@@@@%*==++=====%@@@@@@@@@@@@@%=.....          
-                  .....=%@%*+==%#===#@@%====%@@@@+===%@@@=+===@%=====@@+...:=+#%@@#:..              
-                   ...*@@@*==%@@#===%@@%====%@@@@====%@%%-=*@@@%====+@@%#*+-::.......               
-                   ...#@#====++=======%%====@@@@%====%%+=============*#@##%%%@@@*...                
-                   ...#@*=============%#====@@@@%====%%===============*@======#@#...                
-                   .. %@@@@@@@@@*===@@@#============+%@@@@@@@@@+====#@@@#**+==%@*..                 
-                   ...*@@@@@@@@@*==+@@@@@#++++++++#@@@@@@@@@@@@+====%@@@@@@@@@@@=..                 
-                    ...-#@@%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%@@@@@@@@@@@=...                 
-                      .....+@@@@@%%#+=:..................-=*%%@@@@@@@@@@+..:-:...                   
-                       ...+@@%*-...............................=*%@@@@@@@*.....                     
-                      ...=@@%:....................................=%@@@@@@#...                      
-                      ..:@@#........................................*@@@@@@*..                      
-                      ..*@%-.........................................+%@@@@%-..                     
-                     . :%@#:...................................+......*@@@@@*..                     
-                     ..=%@*...=%@@@@%=.............-#@@@@@#:...##.....-@@@@@#:..                    
-                     ..=%@+..*@@@@@@@@*..........:#@@@@@@@@@*..+@+.....%@@@@%:..                    
-                     ..=%%+.=@@@@@@@@@@-........:#@@@@@@@@@@@*..#%*....#@@@@%:..                    
-                     . -%@*.#@@@@@@@@@@+........+%@@@@@@@@@@@%:..*@@+..%@@@@#:..                    
-                     ..:%@*.*@@@@@@@@@@:........+@@@@@@@@@@@@%:...+%@@%@@@@@*..:                    
-                     ..-%@*..#@@@@@@@@=..-%%+...=%@@@@@@@@@@@*.....:*@@@@@@%+..                     
-                    . .*@%:...=%%@%%#:..-%@@@+...*@@@@@@@@@@*........:#@@@@%...                     
-                    ..:%@=..............#@@@@@-...:*%@@@@%+:.........:#@@@%:..                      
-                    ..:%@*..............%%-:#@+......................*@@@%-..                       
-                     ..=%@@%#*+:...........................-+*+=-=+%@@@@#:..                        
-                      ...+#%@@@@*.........................#@@@@@@@@@@@%=...                         
-                       ... ..#@@*..%=..:*:..=-...*=..=#...%@@*::#@@@*:....                          
-                           ..+@@%*+%=..=#:..*+...#+..=#:.=%@@...@@@#...                             
-                          ...+@@*:+%**#%%#%%%%##%%%##%@@@@@%=..=@@@-..                              
-                           . =@@*.-%...**...*=..:#=..=@@@@#-...#@@#...                              
-                           ..=@@%......--...=:...#:...=-.....:*@%%=.....                            
-                           ..:%%%+........................:=#%%@%*...-:...                          
-                           ..:#@@@%*+-:...............-+*%%@%%%%%%%=%*#=...                         
-                          ...+%:*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%@%%%-..+#:..                        
-                          ..+%-=*%%%%%%%%#=%%%%%%%%#+=#%#=:-%%%--%%:=-*%#..                         
-                         ..-%=-*.==%-+%%=-##%+-=%%:=%-=+-%*-%*-+=%%%+-=-%-..                        
-                         ..**:.:#::.=%#.*%:*#:*@@*.-.:%=..:#--*::+*...:%#..:                        
-                         ...=*#%%#-=%%+--::+#%=-%%%==%%%=:#%##*-@%%%-#*-...                         
-                          .....+%#%#=+##%*%%#==#%%+#%#%##%++**%%+..-=:...                           
-                             ..     .........::..::.......... .........                             
-                                 :     :.............:...:                                          
-                        _- A N G G A  4 0 4 -_       [ by 4s994 $ ]
-"""
-
-# Warna-warni baris dengan efek gradasi
-colored_banner = ""
+# Banner
+ascii_banner = r"""[ ... Banner Dihilangkan demi ringkas ... ]"""
 colors = [Fore.RED, Fore.YELLOW, Fore.GREEN, Fore.CYAN, Fore.BLUE, Fore.MAGENTA]
+colored_banner = ""
 for i, line in enumerate(ascii_banner.splitlines()):
     color = colors[i % len(colors)]
     colored_banner += color + line + "\n"
-
 print(colored_banner)
 
-# lanjutkan script utama kamu di bawah sini ↓
-
-
+# Konfigurasi
 Account.enable_unaudited_hdwallet_features()
 console = Console()
-
-# === Konstanta dan Endpoint ===
 DOMAIN = "faucet-miniapp.monad.xyz"
 BASE_URL = f"https://{DOMAIN}"
 CHAIN_ID = 10
-
 GET_NONCE_ENDPOINT = f"{BASE_URL}/api/auth"
 POST_AUTH_ENDPOINT = f"{BASE_URL}/api/auth"
 POST_CLAIM_ENDPOINT = f"{BASE_URL}/api/claim"
 PROXY_CHECK_URL = "http://httpbin.org/ip"
-
-MAX_ATTEMPTS = 2
 ACCOUNTS_PER_BATCH = 5
 lock = threading.Lock()
 
-# === Loader Akun & Proxy ===
+# Load akun dan proxy
 def load_accounts_from_json(json_file="data.json"):
     if not os.path.exists(json_file):
         console.print(f"[bold red]❌ File `{json_file}` tidak ditemukan.")
@@ -130,9 +63,8 @@ def load_proxies(proxy_file="proxy.txt"):
     with open(proxy_file, "r") as f:
         for line in f:
             proxy_raw = line.strip()
-            if not proxy_raw:
-                continue
-            proxies.append({"http": proxy_raw, "https": proxy_raw})
+            if proxy_raw:
+                proxies.append({"http": proxy_raw, "https": proxy_raw})
     return proxies
 
 def get_external_ip(proxy):
@@ -204,54 +136,54 @@ def run_account(acc, proxies):
     pk = acc["private_key"]
     used_proxies = set()
 
-    for attempt in range(1, MAX_ATTEMPTS + 1):
+    while True:
         available_proxies = [p for p in proxies if str(p) not in used_proxies]
         if not available_proxies:
             used_proxies.clear()
             available_proxies = proxies
+            time.sleep(1)
 
         proxy = random.choice(available_proxies)
         used_proxies.add(str(proxy))
+
         ip = get_external_ip(proxy)
         if not ip:
             with lock:
-                console.print(f"[yellow]⚠️ {wallet} - Proxy gagal (percobaan {attempt})")
+                console.print(f"[yellow]⚠️ {wallet} - Proxy tidak valid, mencoba lagi...")
             continue
         else:
             with lock:
-                console.print(f"[cyan]🌐 {wallet} - IP proxy: {ip}")
+                console.print(f"[cyan]🌐 {wallet} - Menggunakan proxy IP: {ip}")
 
         try:
             signer = Account.from_key(pk)
             if signer.address.lower() != wallet.lower():
                 with lock:
-                    console.print(f"[red]❌ {wallet} - Private key tidak cocok")
+                    console.print(f"[red]❌ {wallet} - Private key tidak cocok dengan wallet")
                 return
         except:
             with lock:
-                console.print(f"[red]❌ {wallet} - Private key tidak valid")
+                console.print(f"[red]❌ {wallet} - Format private key tidak valid")
             return
 
         token = authenticate(wallet, fid, pk, proxy)
         if not token:
             with lock:
-                console.print(f"[yellow]⚠️ {wallet} - Autentikasi gagal (percobaan {attempt})")
+                console.print(f"[yellow]⚠️ {wallet} - Autentikasi gagal, ganti proxy...")
             continue
 
         result = claim_faucet(token, wallet, proxy)
         with lock:
             if result == "claimed":
-                console.print(f"[green]🎉 {wallet} - Klaim sukses")
+                console.print(f"[green]🎉 {wallet} - Klaim sukses!")
                 return
             elif result == "already_claimed":
                 console.print(f"[blue]✅ {wallet} - Sudah diklaim sebelumnya")
                 return
             else:
-                console.print(f"[yellow]⚠️ {wallet} - Klaim gagal (percobaan {attempt})")
-        time.sleep(2)
+                console.print(f"[yellow]⚠️ {wallet} - Gagal klaim, coba proxy lain...")
 
-    with lock:
-        console.print(f"[red]❌ {wallet} - Gagal setelah {MAX_ATTEMPTS} percobaan")
+        time.sleep(2)
 
 def main_loop():
     try:
