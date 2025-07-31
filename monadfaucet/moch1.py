@@ -21,7 +21,7 @@ POST_CLAIM_ENDPOINT = f"{BASE_URL}/api/claim"
 PROXY_CHECK_URL = "http://httpbin.org/ip"
 
 # === Konfigurasi ===
-MAX_ATTEMPTS = 0
+MAX_ATTEMPTS = 10
 ACCOUNTS_PER_BATCH = 5
 lock = threading.Lock()
 
