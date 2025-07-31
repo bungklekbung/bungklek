@@ -8,31 +8,18 @@ import random
 import time
 import threading
 from rich.console import Console
+from rich.table import Table
 from rich.panel import Panel
 from rich import box
 
-Account.enable_unaudited_hdwallet_features()
-console = Console()
+# moch1.py
+# Terminal Banner by 4s994 for _-ANGGA-_
+# ANSI-safe size, optimized for 100-120 cols
 
-# === Konstanta dan Endpoint ===
-DOMAIN = "faucet-miniapp.monad.xyz"
-BASE_URL = f"https://{DOMAIN}"
-CHAIN_ID = 10
+from colorama import Fore, Style, init
+init(autoreset=True)
 
-GET_NONCE_ENDPOINT = f"{BASE_URL}/api/auth"
-POST_AUTH_ENDPOINT = f"{BASE_URL}/api/auth"
-POST_CLAIM_ENDPOINT = f"{BASE_URL}/api/claim"
-PROXY_CHECK_URL = "http://httpbin.org/ip"
-
-MAX_ATTEMPTS = 2
-ACCOUNTS_PER_BATCH = 5
-lock = threading.Lock()
-
-# === Banner Logo ===
-def tampilkan_logo_angga404():
-    logo = r"""
-                                                                                                       
-                                                                                                    
+ascii_banner = r"""                                                                                                                                                                                                                
                                          ...................                                        
                         ....................  ............... .........                             
                    ... .......:-=+*#%%%%%%%%%@@@@@@@@@@@%%%%%%%%#*+-.. ............                 
@@ -86,11 +73,37 @@ def tampilkan_logo_angga404():
                           .....+%#%#=+##%*%%#==#%%+#%#%##%++**%%+..-=:...                           
                              ..     .........::..::.......... .........                             
                                  :     :.............:...:                                          
-               ▓▓▒▒ _- A N G G A  4 0 4 -_ ▒▒▓▓
-                    [ by 4s994 $ ]
-    """
-    console.print(logo, style="bold green")
-    time.sleep(1)
+                        _- A N G G A  4 0 4 -_       [ by 4s994 $ ]
+"""
+
+# Warna-warni baris dengan efek gradasi
+colored_banner = ""
+colors = [Fore.RED, Fore.YELLOW, Fore.GREEN, Fore.CYAN, Fore.BLUE, Fore.MAGENTA]
+for i, line in enumerate(ascii_banner.splitlines()):
+    color = colors[i % len(colors)]
+    colored_banner += color + line + "\n"
+
+print(colored_banner)
+
+# lanjutkan script utama kamu di bawah sini ↓
+
+
+Account.enable_unaudited_hdwallet_features()
+console = Console()
+
+# === Konstanta dan Endpoint ===
+DOMAIN = "faucet-miniapp.monad.xyz"
+BASE_URL = f"https://{DOMAIN}"
+CHAIN_ID = 10
+
+GET_NONCE_ENDPOINT = f"{BASE_URL}/api/auth"
+POST_AUTH_ENDPOINT = f"{BASE_URL}/api/auth"
+POST_CLAIM_ENDPOINT = f"{BASE_URL}/api/claim"
+PROXY_CHECK_URL = "http://httpbin.org/ip"
+
+MAX_ATTEMPTS = 2
+ACCOUNTS_PER_BATCH = 5
+lock = threading.Lock()
 
 # === Loader Akun & Proxy ===
 def load_accounts_from_json(json_file="data.json"):
@@ -242,7 +255,6 @@ def run_account(acc, proxies):
 
 def main_loop():
     try:
-        tampilkan_logo_angga404()
         while True:
             all_accounts = load_accounts_from_json()
             proxies = load_proxies()
