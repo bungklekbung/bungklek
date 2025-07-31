@@ -8,10 +8,9 @@ import random
 import time
 import threading
 from rich.console import Console
-from rich.table import Table
 from rich.panel import Panel
 from rich import box
-from colorama import Fore, Style, init
+from colorama import Fore, init
 
 # Inisialisasi warna terminal
 init(autoreset=True)
@@ -64,6 +63,8 @@ def load_proxies(proxy_file="proxy.txt"):
         for line in f:
             proxy_raw = line.strip()
             if proxy_raw:
+                if not proxy_raw.startswith("http"):
+                    proxy_raw = f"http://{proxy_raw}"
                 proxies.append({"http": proxy_raw, "https": proxy_raw})
     return proxies
 
