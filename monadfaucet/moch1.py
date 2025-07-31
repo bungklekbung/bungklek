@@ -1,7 +1,7 @@
 import requests
 from datetime import datetime, timezone
 from eth_account import Account
-from eth\_account.messages import encode\_defunct
+from eth_account.messages import encode_defunct
 import os
 import json
 import random
