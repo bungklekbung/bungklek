@@ -20,7 +20,7 @@ console = Console()
 
 DOMAIN = "faucet-miniapp.monad.xyz"
 BASE_URL = f"https://{DOMAIN}"
-CHAIN\_ID = 10
+CHAIN_ID = 10
 
 GET\_NONCE\_ENDPOINT = f"{BASE\_URL}/api/auth"
 POST\_AUTH\_ENDPOINT = f"{BASE\_URL}/api/auth"
