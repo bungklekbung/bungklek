@@ -1,4 +1,3 @@
-
 import requests
 from datetime import datetime, timezone
 from eth_account import Account
@@ -133,12 +132,25 @@ def run_account(acc, proxies):
     wallet = acc["wallet_address"]
     fid = acc["fid"]
     pk = acc["private_key"]
+    used_proxies = set()
 
     for attempt in range(1, MAX_ATTEMPTS + 1):
-        proxy = random.choice(proxies)
+        available_proxies = [p for p in proxies if str(p) not in used_proxies]
+        if not available_proxies:
+            used_proxies.clear()
+            available_proxies = proxies
+
+        proxy = random.choice(available_proxies)
+        used_proxies.add(str(proxy))
+
         ip = get_external_ip(proxy)
         if not ip:
+            with lock:
+                print(f"⚠️ {wallet} - Proxy tidak merespons (percobaan {attempt}), coba lain...")
             continue
+        else:
+            with lock:
+                print(f"🌐 {wallet} - Menggunakan proxy IP: {ip}")
 
         try:
             signer = Account.from_key(pk)
@@ -153,6 +165,8 @@ def run_account(acc, proxies):
 
         token = authenticate(wallet, fid, pk, proxy)
         if not token:
+            with lock:
+                print(f"⚠️ {wallet} - Autentikasi gagal (percobaan {attempt}).")
             continue
 
         result = claim_faucet(token, wallet, proxy)
@@ -165,6 +179,7 @@ def run_account(acc, proxies):
                 return
             else:
                 print(f"⚠️ {wallet} - Gagal klaim (percobaan {attempt}).")
+
         time.sleep(2)
 
     with lock:
