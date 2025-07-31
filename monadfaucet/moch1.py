@@ -8,7 +8,6 @@ import random
 import time
 import threading
 from rich.console import Console
-from rich.table import Table
 from rich.panel import Panel
 from rich import box
 
@@ -28,6 +27,21 @@ PROXY_CHECK_URL = "http://httpbin.org/ip"
 MAX_ATTEMPTS = 2
 ACCOUNTS_PER_BATCH = 5
 lock = threading.Lock()
+
+# === Banner Logo ===
+def tampilkan_logo_angga404():
+    logo = r"""
+     █████╗ ████╗  ████╗  ███╗   ██╗ ██████╗  █████╗ 
+    ██╔══██╗████║ █████║ ████║   ██║██╔════╝ ██╔══██╗
+    ███████║██╔████╔██║ ██╔██║   ██║██║  ███╗███████║
+    ██╔══██║██║╚██╔╝██║ ██║╚██╗ ██╔╝██║   ██║██╔══██║
+    ██║  ██║██║ ╚═╝ ██║ ██║ ╚████╔╝ ╚██████╔╝██║  ██║
+    ╚═╝  ╚═╝╚═╝     ╚═╝ ╚═╝  ╚═══╝   ╚═════╝ ╚═╝  ╚═╝
+               ▓▓▒▒ _- A N G G A  4 0 4 -_ ▒▒▓▓
+                    [ by 4s994 $ ]
+    """
+    console.print(logo, style="bold green")
+    time.sleep(1)
 
 # === Loader Akun & Proxy ===
 def load_accounts_from_json(json_file="data.json"):
@@ -179,6 +193,7 @@ def run_account(acc, proxies):
 
 def main_loop():
     try:
+        tampilkan_logo_angga404()
         while True:
             all_accounts = load_accounts_from_json()
             proxies = load_proxies()
