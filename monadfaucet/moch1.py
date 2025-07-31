@@ -19,7 +19,7 @@ console = Console()
 # === Konstanta dan Endpoint ===
 
 DOMAIN = "faucet-miniapp.monad.xyz"
-BASE\_URL = f"https\://{DOMAIN}"
+BASE_URL = f"https://{DOMAIN}"
 CHAIN\_ID = 10
 
 GET\_NONCE\_ENDPOINT = f"{BASE\_URL}/api/auth"
