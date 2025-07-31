@@ -1,6 +1,6 @@
 import requests
 from datetime import datetime, timezone
-from eth\_account import Account
+from eth_account import Account
 from eth\_account.messages import encode\_defunct
 import os
 import json
