@@ -228,6 +228,7 @@ with Live(console=console, refresh_per_second=4):
 
 def main\_loop():
 try:
+console.print("\[bold yellow]✨ Loading MONAD Faucet Auto Claim by angga 404...\n")
 animate\_banner()
 
 ```
