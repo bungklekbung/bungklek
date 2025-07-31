@@ -13,7 +13,7 @@ from rich.panel import Panel
 from rich import box
 from rich.live import Live
 
-Account.enable\_unaudited\_hdwallet\_features()
+Account.enable_unaudited_hdwallet_features()
 console = Console()
 
 # === Konstanta dan Endpoint ===
