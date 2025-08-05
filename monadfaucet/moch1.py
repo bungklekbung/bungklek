@@ -7,40 +7,56 @@ import json
 import random
 import time
 import threading
-from rich.console import Console
-from rich.panel import Panel
-from rich import box
-from colorama import Fore, init
+from colorama import init, Fore, Style
 
 # Inisialisasi warna terminal
 init(autoreset=True)
-
-# Banner
-ascii_banner = r"""[ ... Banner Dihilangkan demi ringkas ... ]"""
-colors = [Fore.RED, Fore.YELLOW, Fore.GREEN, Fore.CYAN, Fore.BLUE, Fore.MAGENTA]
-colored_banner = ""
-for i, line in enumerate(ascii_banner.splitlines()):
-    color = colors[i % len(colors)]
-    colored_banner += color + line + "\n"
-print(colored_banner)
-
-# Konfigurasi
 Account.enable_unaudited_hdwallet_features()
-console = Console()
+
+# === Konstanta dan Endpoint ===
 DOMAIN = "faucet-miniapp.monad.xyz"
 BASE_URL = f"https://{DOMAIN}"
 CHAIN_ID = 10
+
 GET_NONCE_ENDPOINT = f"{BASE_URL}/api/auth"
 POST_AUTH_ENDPOINT = f"{BASE_URL}/api/auth"
 POST_CLAIM_ENDPOINT = f"{BASE_URL}/api/claim"
 PROXY_CHECK_URL = "http://httpbin.org/ip"
+
+# === Konfigurasi ===
+MAX_ATTEMPTS = 3
 ACCOUNTS_PER_BATCH = 5
 lock = threading.Lock()
 
-# Load akun dan proxy
+# === Logging Waktu ===
+def log(msg):
+    now = datetime.now().strftime("[%H:%M:%S]")
+    with lock:
+        print(f"{now} {msg}")
+
+# === Proxy Handler ===
+def get_proxies(proxy_file="proxy.txt"):
+    if not os.path.exists(proxy_file):
+        log(f"❌ File `{proxy_file}` tidak ditemukan.")
+        return []
+    with open(proxy_file, "r") as f:
+        return [line.strip() for line in f if line.strip()]
+
+def rotate_proxy(proxy_list, bad_proxy_set):
+    available = [p for p in proxy_list if p not in bad_proxy_set]
+    return random.choice(available) if available else None
+
+def get_external_ip(proxy):
+    try:
+        res = requests.get(PROXY_CHECK_URL, proxies={"http": proxy, "https": proxy}, timeout=10)
+        return res.json().get("origin")
+    except:
+        return None
+
+# === Loader Akun ===
 def load_accounts_from_json(json_file="data.json"):
     if not os.path.exists(json_file):
-        console.print(f"[bold red]❌ File `{json_file}` tidak ditemukan.")
+        log(f"❌ File `{json_file}` tidak ditemukan.")
         return []
     with open(json_file, "r") as f:
         data = json.load(f)
@@ -51,33 +67,13 @@ def load_accounts_from_json(json_file="data.json"):
                 "fid": int(acc["fid"])
             }
             for acc in data
-            if all(k in acc for k in ["wallet_address", "private_key", "fid"])
+            if all(k in acc for k in ["wallet_address", "private_key", "fid"]) and acc["fid"]
         ]
 
-def load_proxies(proxy_file="proxy.txt"):
-    if not os.path.exists(proxy_file):
-        console.print(f"[bold red]❌ File `{proxy_file}` tidak ditemukan.")
-        return []
-    proxies = []
-    with open(proxy_file, "r") as f:
-        for line in f:
-            proxy_raw = line.strip()
-            if proxy_raw:
-                if not proxy_raw.startswith("http"):
-                    proxy_raw = f"http://{proxy_raw}"
-                proxies.append({"http": proxy_raw, "https": proxy_raw})
-    return proxies
-
-def get_external_ip(proxy):
-    try:
-        res = requests.get(PROXY_CHECK_URL, proxies=proxy, timeout=10)
-        return res.json().get("origin")
-    except:
-        return None
-
+# === Auth & Claim ===
 def fetch_nonce(fid, proxy):
     try:
-        res = requests.get(f"{GET_NONCE_ENDPOINT}?fid={fid}", proxies=proxy, timeout=15)
+        res = requests.get(f"{GET_NONCE_ENDPOINT}?fid={fid}", proxies={"http": proxy, "https": proxy}, timeout=15)
         return res.json().get("nonce")
     except:
         return None
@@ -85,10 +81,15 @@ def fetch_nonce(fid, proxy):
 def build_siwe_message(wallet, fid, nonce, issued_at):
     return (
         f"{DOMAIN} wants you to sign in with your Ethereum account:\n"
-        f"{wallet}\n\nFarcaster Auth\n\n"
-        f"URI: https://{DOMAIN}/\nVersion: 1\nChain ID: {CHAIN_ID}\n"
-        f"Nonce: {nonce}\nIssued At: {issued_at}\n"
-        f"Resources:\n- farcaster://fid/{fid}"
+        f"{wallet}\n\n"
+        f"Farcaster Auth\n\n"
+        f"URI: https://{DOMAIN}/\n"
+        f"Version: 1\n"
+        f"Chain ID: {CHAIN_ID}\n"
+        f"Nonce: {nonce}\n"
+        f"Issued At: {issued_at}\n"
+        f"Resources:\n"
+        f"- farcaster://fid/{fid}"
     )
 
 def sign_message(message, pk):
@@ -111,7 +112,7 @@ def authenticate(wallet_address, fid, private_key, proxy):
     }
     headers = {"Content-Type": "application/json"}
     try:
-        res = requests.post(POST_AUTH_ENDPOINT, headers=headers, json=payload, proxies=proxy, timeout=30)
+        res = requests.post(POST_AUTH_ENDPOINT, headers=headers, json=payload, proxies={"http": proxy, "https": proxy}, timeout=30)
         return res.json().get("token")
     except:
         return None
@@ -123,7 +124,7 @@ def claim_faucet(token, wallet_address, proxy):
         "Content-Type": "application/json"
     }
     try:
-        res = requests.post(POST_CLAIM_ENDPOINT, headers=headers, json=payload, proxies=proxy, timeout=30)
+        res = requests.post(POST_CLAIM_ENDPOINT, headers=headers, json=payload, proxies={"http": proxy, "https": proxy}, timeout=30)
         result = res.json()
         if "txHash" in result:
             return "already_claimed"
@@ -131,81 +132,84 @@ def claim_faucet(token, wallet_address, proxy):
     except:
         return "failed"
 
-def run_account(acc, proxies):
+# === Proses Satu Akun ===
+def run_account(acc, proxy_list, bad_proxy_set):
     wallet = acc["wallet_address"]
     fid = acc["fid"]
     pk = acc["private_key"]
-    used_proxies = set()
 
-    while True:
-        available_proxies = [p for p in proxies if str(p) not in used_proxies]
-        if not available_proxies:
-            used_proxies.clear()
-            available_proxies = proxies
-            time.sleep(1)
-
-        proxy = random.choice(available_proxies)
-        used_proxies.add(str(proxy))
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+        proxy = rotate_proxy(proxy_list, bad_proxy_set)
+        if not proxy:
+            log(f"❌ {wallet} - Semua proxy gagal dipakai.")
+            return
 
         ip = get_external_ip(proxy)
         if not ip:
-            with lock:
-                console.print(f"[yellow]⚠️ {wallet} - Proxy tidak valid, mencoba lagi...")
+            bad_proxy_set.add(proxy)
             continue
-        else:
-            with lock:
-                console.print(f"[cyan]🌐 {wallet} - Menggunakan proxy IP: {ip}")
 
         try:
             signer = Account.from_key(pk)
             if signer.address.lower() != wallet.lower():
-                with lock:
-                    console.print(f"[red]❌ {wallet} - Private key tidak cocok dengan wallet")
+                log(f"❌ {wallet} - Private key tidak cocok.")
                 return
         except:
-            with lock:
-                console.print(f"[red]❌ {wallet} - Format private key tidak valid")
+            log(f"❌ {wallet} - Private key tidak valid.")
             return
 
         token = authenticate(wallet, fid, pk, proxy)
         if not token:
-            with lock:
-                console.print(f"[yellow]⚠️ {wallet} - Autentikasi gagal, ganti proxy...")
+            log(f"⚠️ {wallet} - Gagal auth, ganti proxy (percobaan {attempt}).")
+            bad_proxy_set.add(proxy)
             continue
 
         result = claim_faucet(token, wallet, proxy)
-        with lock:
-            if result == "claimed":
-                console.print(f"[green]🎉 {wallet} - Klaim sukses!")
-                return
-            elif result == "already_claimed":
-                console.print(f"[blue]✅ {wallet} - Sudah diklaim sebelumnya")
-                return
-            else:
-                console.print(f"[yellow]⚠️ {wallet} - Gagal klaim, coba proxy lain...")
+        if result == "claimed":
+            log(f"{Fore.GREEN}🎉 {wallet} - Berhasil klaim.")
+            return
+        elif result == "already_claimed":
+            log(f"{Fore.YELLOW}✅ {wallet} - Sudah pernah klaim.")
+            return
+        else:
+            log(f"⚠️ {wallet} - Gagal klaim, coba lagi (percobaan {attempt}).")
+            bad_proxy_set.add(proxy)
 
         time.sleep(2)
 
+    log(f"{Fore.RED}❌ {wallet} - Gagal klaim setelah {MAX_ATTEMPTS} percobaan.")
+
+# === Dashboard / Header ===
+def print_dashboard(title):
+    print(f"\n{Fore.CYAN}{'='*60}")
+    print(f"{Fore.YELLOW}{Style.BRIGHT}{title.center(60)}")
+    print(f"{Fore.CYAN}{'='*60}\n")
+
+# === Main Loop ===
 def main_loop():
     try:
         while True:
             all_accounts = load_accounts_from_json()
-            proxies = load_proxies()
-            if not all_accounts or not proxies:
-                console.print("[bold red]❌ Tidak ada akun atau proxy.")
+            proxy_list = get_proxies()
+            bad_proxy_set = set()
+
+            if not all_accounts or not proxy_list:
+                log("❌ Tidak ada akun atau proxy.")
                 break
 
             batch_num = 1
             total = len(all_accounts)
-            console.print(Panel(f"🚀 Menjalankan total [bold]{total}[/bold] akun dalam batch {ACCOUNTS_PER_BATCH}-thread", title="Faucet Bot", box=box.DOUBLE))
+            print_dashboard("🧪 AUTO CLAIM MONAD FAUCET DASHBOARD")
+            log(f"🚀 Total akun: {Fore.GREEN}{total}{Style.RESET_ALL}")
+            log(f"🔁 Mode thread: {Fore.MAGENTA}{ACCOUNTS_PER_BATCH} akun per batch")
 
             for i in range(0, total, ACCOUNTS_PER_BATCH):
                 batch = all_accounts[i:i + ACCOUNTS_PER_BATCH]
-                console.print(Panel(f"📦 Batch {batch_num}: {len(batch)} akun", style="bold green"))
+                log(f"\n📦 {Fore.CYAN}Batch {batch_num}: {len(batch)} akun")
                 threads = []
 
                 for acc in batch:
-                    t = threading.Thread(target=run_account, args=(acc, proxies))
+                    t = threading.Thread(target=run_account, args=(acc, proxy_list, bad_proxy_set))
                     t.start()
                     threads.append(t)
                     time.sleep(0.5)
@@ -214,12 +218,11 @@ def main_loop():
                     t.join()
                 batch_num += 1
 
-            console.print("[bold green]\n✅ Semua akun selesai diproses.")
-            console.print("[yellow]⏳ Menunggu 6 jam sebelum siklus berikutnya...\n")
-            time.sleep(6 * 60 * 60)
+            log(f"{Fore.BLUE}⏳ Tunggu 1 jam sebelum klaim berikutnya...\n")
+            time.sleep(1 * 60 * 60)  # 1 jam
 
     except KeyboardInterrupt:
-        console.print("[bold red]\n🛑 Dihentikan oleh pengguna (Ctrl+C)")
+        log("🛑 Program dihentikan oleh pengguna (Ctrl+C).")
 
 if __name__ == "__main__":
     main_loop()
